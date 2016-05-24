@@ -1,0 +1,10 @@
+{
+  "name": "OpenspaceTwitterBot",
+  "version": "0.0.1",
+  "description": "Automatically posts tweets",
+  "repository": "https://github.com/nusic/OpenspaceTwitterBot.git",
+  "author": "Erik Broberg <paul@paularmstrongdesigns.com>",
+  "dependencies": {
+    "request": "^2.72.0"
+  }
+}
