@@ -44,7 +44,7 @@ function responseHandler(err, response, body){
 	var todaysDate = new Date();
 	var committer = commit.committer.name.split(' ')[0];
 
-	if(false && isSameDay(commitDate, todaysDate) || config.github.allowOldCommits){
+	if(isSameDay(commitDate, todaysDate) || config.github.allowOldCommits){
 		console.log('Latest commit by ' + committer + ': ' + commit.message);
 	}
 	else{
