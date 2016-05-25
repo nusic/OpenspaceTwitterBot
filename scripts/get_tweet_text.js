@@ -1,13 +1,16 @@
 var request = require('request');
 var fs = require('fs');
 
-var inactiveTweetsFile = '../data/inactivity_tweets.txt';
-var inactiveWeekendTweetsFile = '../data/inactivity_weekend_tweets.txt';
+var config = require('./config.js');
 
-var oldCommitIsAllowed = true;
+var INACTIVITY_TWEETS = '../data/inactivity_tweets.txt';
+var INACTIVITY_WEEKEND_TWEETS = '../data/inactivity_weekend_tweets.txt';
+var BASE_URL = 'https://api.github.com/repos'
+	+ '/' + config.github.user 
+	+ '/' + config.github.repo
+	+ '/commits/' + config.github.branch;
 
-var BASE_URL = 'https://api.github.com/repos/OpenSpace/OpenSpace-Development/commits/feature/globebrowsing';
-var requestUrl = BASE_URL + '?access_token=' + process.argv[2];
+
 
 if(process.argv.length === 3){
 	run();
@@ -21,11 +24,10 @@ function run(){
 		headers: {
 			'User-Agent': 'OpenspaceDevsAMNHTwitter'
 		},
-		url: requestUrl
+		url: (BASE_URL + '?access_token=' + process.argv[2])
 	};
-	//request(requestData, responseHandler);
-	printFirstLineAndMoveLast(inactiveTweetsFile);
-
+	request(requestData, responseHandler);
+	//printFirstLineAndMoveLast(INACTIVITY_TWEETS);
 }
 
 function responseHandler(err, response, body){
@@ -42,13 +44,13 @@ function responseHandler(err, response, body){
 	var todaysDate = new Date();
 	var committer = commit.committer.name.split(' ')[0];
 
-	if(isSameDay(commitDate, todaysDate) || oldCommitIsAllowed){
+	if(isSameDay(commitDate, todaysDate) || config.github.allowOldCommits){
 		console.log('Latest commit by ' + committer + ': ' + commit.message);
 	}
 	else{
 		var saturday = 5;
 		var tweetsFile = (todaysDate.getDay() < saturday) ? 
-			inactiveTweetsFile : inactiveWeekendTweetsFile;
+			INACTIVITY_TWEETS : INACTIVITY_WEEKEND_TWEETS;
 
 		printFirstLineAndMoveLast(tweetsFile);
 	}

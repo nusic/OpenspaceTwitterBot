@@ -1,6 +1,6 @@
 var exec = require('child_process').exec;
 
-var verbose = false;
+var verbose = true;
 var imgPath, text;
 
 if(process.argv.length === 4){
@@ -17,19 +17,20 @@ function run(){
 	var uploadImageCommand = 'twurl -H upload.twitter.com "/1.1/media/upload.json" -f ' + imgPath + ' -F media -X POST'
 	console.log('executing command: ' + uploadImageCommand);
 
-	exec(uploadImageCommand, uploadImageCallback);
-}
+	exec(uploadImageCommand, function(error, stdout, stderr) { 
+		if(error) return console.error(error);
+		if(stderr) return console.error(stderr);
 
-function uploadImageCallback(error, stdout, stderr) { 
-	if(error) return console.error(error);
-	if(stderr) return console.error(stderr);
+		var uploadResponse = JSON.parse(stdout);
+		if(uploadResponse.error){
+			throw new Error(uploadResponse.error);
+		}
 
-	var uploadResponse = JSON.parse(stdout);
+		if(verbose) console.log(uploadResponse);
+		var mediaId = uploadResponse.media_id_string;
 
-	if(verbose) console.log(uploadResponse);
-	var mediaId = uploadResponse.media_id_string;
-
-	tweetWithMedia(mediaId);
+		tweetWithMedia(mediaId);
+	});
 }
 
 function tweetWithMedia(mediaId){
