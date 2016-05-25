@@ -5,7 +5,8 @@ var config = require('./config.js');
 
 var nowStr = new Date().toISOString().replace(/[:\.]/g, '_');
 var imageName = 'img_' + nowStr;
-var captureCmd = 'node take_photo.js ' + imageName;
+var imageCaptureScriptPath = config.rootPath + 'scripts/image_capture.js';
+var captureCmd = 'node ' + imageCaptureScriptPath + ' ' + imageName;
 
 run();
 
@@ -25,7 +26,8 @@ function run(){
 function onImageCaptured(pathToMedia){
 	console.log(pathToMedia);
 
-	var getTextCmd = 'node get_tweet_text.js %GITHUB_ACCESS_TOKEN%';
+	var getTweetScriptPath = config.rootPath + 'scripts/get_tweet_text.js';
+	var getTextCmd = 'node ' + getTweetScriptPath + ' ' + process.env.GITHUB_ACCESS_TOKEN;
 	exec(getTextCmd, function(error, stdout, stderr){
 		if(error) return console.error(error);
 		if(stderr) return console.error(stderr);
@@ -39,7 +41,8 @@ function onImageCaptured(pathToMedia){
 }
 
 function onMediaAndTweetText(pathToMedia, tweetText){
-	var tweetCmd = 'node tweet_image_w_text.js';
+	var tweetScriptPath = config.rootPath + 'scripts/tweet_image_w_text.js';
+	var tweetCmd = 'node ' + tweetScriptPath;
 	tweetCmd += ' ' + pathToMedia; // first argument 
 	tweetCmd += ' "' + tweetText + '"'; // second argument
 	

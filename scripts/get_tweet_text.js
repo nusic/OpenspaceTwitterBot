@@ -3,8 +3,8 @@ var fs = require('fs');
 
 var config = require('./config.js');
 
-var INACTIVITY_TWEETS = '../data/inactivity_tweets.txt';
-var INACTIVITY_WEEKEND_TWEETS = '../data/inactivity_weekend_tweets.txt';
+var INACTIVITY_TWEETS = config.rootPath + '/data/inactivity_tweets.txt';
+var INACTIVITY_WEEKEND_TWEETS = config.rootPath + '/data/inactivity_weekend_tweets.txt';
 var BASE_URL = 'https://api.github.com/repos'
 	+ '/' + config.github.user 
 	+ '/' + config.github.repo
@@ -44,7 +44,7 @@ function responseHandler(err, response, body){
 	var todaysDate = new Date();
 	var committer = commit.committer.name.split(' ')[0];
 
-	if(isSameDay(commitDate, todaysDate) || config.github.allowOldCommits){
+	if(false && isSameDay(commitDate, todaysDate) || config.github.allowOldCommits){
 		console.log('Latest commit by ' + committer + ': ' + commit.message);
 	}
 	else{
