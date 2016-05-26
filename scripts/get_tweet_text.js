@@ -3,12 +3,17 @@ var fs = require('fs');
 
 var config = require('./config.js');
 
+
+
 var INACTIVITY_TWEETS = config.rootPath + '/data/inactivity_tweets.txt';
 var INACTIVITY_WEEKEND_TWEETS = config.rootPath + '/data/inactivity_weekend_tweets.txt';
-var BASE_URL = 'https://api.github.com/repos'
+var URL = 'https://api.github.com/repos'
 	+ '/' + config.github.user 
 	+ '/' + config.github.repo
-	+ '/commits/' + config.github.branch;
+	+ '/commits'
+	+ '?sha=' + config.github.branch
+	+ '&since=' + getSinceDate()
+	+ 'access_token=' + config.github.credentials.token;
 
 run();
 
@@ -17,7 +22,7 @@ function run(){
 		headers: {
 			'User-Agent': 'OpenspaceDevsAMNHTwitter'
 		},
-		url: (BASE_URL + '?access_token=' + config.github.credentials.token)
+		url: URL
 	};
 	request(requestData, responseHandler);
 }
@@ -30,7 +35,9 @@ function responseHandler(err, response, body){
 		return console.error('Bad status code: ' + response.statusCode);
 	}
 
-	var commit = JSON.parse(body).commit;
+	var commits = JSON.parse(body);
+
+	// Loop through commits and pick first that is not a merge
 	var commitDate = new Date(commit.committer.date);
 	var committer = commit.committer.name.split(' ')[0];
 
@@ -71,6 +78,15 @@ function cutIfNecessary(message){
 	}
 
 	return mes;
+}
+
+function getSinceDate(){
+	var d = new Date();
+	var todayIso = d.getFullYear() 
+		+ '-' + d.getMonth()
+		+ '-' + d.getDate()
+		+ 'T00:00:00Z';
+	return todayIso;
 }
 
 function isToday(d){
