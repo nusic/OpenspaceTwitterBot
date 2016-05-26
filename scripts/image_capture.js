@@ -18,11 +18,13 @@ function run(outFile){
 	exec(playSoundCmd);
 
 	var imageCaptureCmd = imageCaptureCommand(config, outFile);
-	exec(imageCaptureCmd, function(error, stdout, stderr){
-		if(error) throw new Error(error);
-		if(stderr) return console.error(stderr);
-		if(stdout) return console.log(stdout);
-	});
+	setTimeout(function(){
+		exec(imageCaptureCmd, function(error, stdout, stderr){
+			if(error) throw new Error(error);
+			if(stderr) return console.error(stderr);
+			if(stdout) return console.log(stdout);
+		});
+	}, config.camera.delay);
 }
 
 function addWindowsParam(cmd, key, value){
