@@ -7,6 +7,8 @@ var bufferLength, filePath, finished, fs, oauthCredentials, offset, request, seg
 request = require('request');
 fs = require('fs');
 
+var config = require('./config.js');
+
 mediaType = process.argv[2];
 filePath = process.argv[3];
 bufferLength = 100000;
@@ -14,12 +16,7 @@ theBuffer = new Buffer(bufferLength);
 offset = 0;
 segment_index = 0;
 finished = 0;
-oauthCredentials = {
-    consumer_key: process.env.TWITTER_CONSUMER_KEY,
-    consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
-    token: process.env.TWITTER_ACCESS_TOKEN,
-    token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET
-};
+oauthCredentials = config.twitter.credentials;
 
 fs.stat(filePath, function(err, stats) {
     var formData, normalAppendCallback, options;

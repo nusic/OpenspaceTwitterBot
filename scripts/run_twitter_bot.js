@@ -27,7 +27,7 @@ function onImageCaptured(pathToMedia){
 	console.log(pathToMedia);
 
 	var getTweetScriptPath = config.rootPath + 'scripts/get_tweet_text.js';
-	var getTextCmd = 'node ' + getTweetScriptPath + ' ' + process.env.GITHUB_ACCESS_TOKEN;
+	var getTextCmd = 'node ' + getTweetScriptPath + ' ' + config.github.credentials.token;
 	exec(getTextCmd, function(error, stdout, stderr){
 		if(error) return console.error(error);
 		if(stderr) return console.error(stderr);

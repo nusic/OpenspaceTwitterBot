@@ -20,5 +20,16 @@ module.exports = {
 		repo: 'OpenSpace-Development',
 		branch: 'feature/globebrowsing',
 		allowOldCommits: false,
+		credentials: {
+			token: process.env.GITHUB_ACCESS_TOKEN,
+		}
 	},
+	twitter: {
+		credentials: {
+	    	consumer_key: process.env.TWITTER_CONSUMER_KEY,
+    		consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
+    		token: process.env.TWITTER_ACCESS_TOKEN,
+    		token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET
+    	},
+	}
 }

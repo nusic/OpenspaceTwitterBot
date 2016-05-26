@@ -10,24 +10,16 @@ var BASE_URL = 'https://api.github.com/repos'
 	+ '/' + config.github.repo
 	+ '/commits/' + config.github.branch;
 
-
-
-if(process.argv.length === 3){
-	run();
-}
-else{
-	console.log('Must provide one argument: <github access token>');
-}
+run();
 
 function run(){
 	var requestData = {
 		headers: {
 			'User-Agent': 'OpenspaceDevsAMNHTwitter'
 		},
-		url: (BASE_URL + '?access_token=' + process.argv[2])
+		url: (BASE_URL + '?access_token=' + config.github.credentials.token)
 	};
 	request(requestData, responseHandler);
-	//printFirstLineAndMoveLast(INACTIVITY_TWEETS);
 }
 
 function responseHandler(err, response, body){
@@ -38,23 +30,48 @@ function responseHandler(err, response, body){
 		return console.error('Bad status code: ' + response.statusCode);
 	}
 
-	var resp = JSON.parse(body);
-	var commit = resp.commit;
+	var commit = JSON.parse(body).commit;
 	var commitDate = new Date(commit.committer.date);
-	var todaysDate = new Date();
 	var committer = commit.committer.name.split(' ')[0];
 
-	if(isSameDay(commitDate, todaysDate) || config.github.allowOldCommits){
-		console.log('Latest commit by ' + committer + ': ' + commit.message);
+	if(isToday(commitDate) || config.github.allowOldCommits){
+		console.log(getTweetText(committer, commit.message));
 	}
 	else{
-		var saturday = 5;
-		var tweetsFile = (todaysDate.getDay() < saturday) ? 
-			INACTIVITY_TWEETS : INACTIVITY_WEEKEND_TWEETS;
-
-		printFirstLineAndMoveLast(tweetsFile);
+		getDefaultTweetText(printOnSuccess);
 	}
-};	
+};
+
+function printOnSuccess(err, data){
+	if(err) return console.error(err);
+	else console.log(data);
+}
+
+function getTweetText(committer, msg){
+	var autoMsgTrigger = 'github.com:' + config.github.user + '/' + config.github.repo;
+	if(msg.indexOf(autoMsgTrigger) !== -1){
+		return 'Looks like ' + committer + ' just merged a branch into ' + config.github.branch;
+	}
+	return cutIfNecessary('Latest commit by ' + committer + ': ' + msg);
+}
+
+function cutIfNecessary(message){
+	var maxLength = 140;
+	var encodedMessage = encodeURIComponent(message.trim());
+	var encodedMes = encodedMessage.substr(0, maxLength);
+	var lastEscapePos = encodedMes.lastIndexOf('%');
+	if(lastEscapePos > encodedMes.length - 4){
+		encodedMes = encodedMes.substr(0, lastEscapePos);
+	}
+	var mes = decodeURIComponent(encodedMes);
+
+	// If the encoded message was cut
+	if(encodedMessage.length > encodedMes.length){
+		mes = mes.substr(0, mes.length-4) + '...';
+	}
+
+	return mes;
+}
 
 function isToday(d){
 	var todaysDate = new Date(); 
@@ -67,12 +84,29 @@ function isSameDay(d1, d2){
 		&& d1.getDate() === d2.getDate();
 }
 
+function getDefaultTweetText(cb){
+	var saturday = 5;
+	var today = new Date();
+	var tweetsFile = (today.getDay() < saturday) ? 
+		INACTIVITY_TWEETS : INACTIVITY_WEEKEND_TWEETS;
+
+	readFirstLineAndMoveLast(tweetsFile, function(err, tweet){
+		if(err) return cb(err);
+		var twee = cutIfNecessary(tweet);
+		if(tweet.length > twee.length){
+			console.error(tweet);
+			throw new Error('Tweet is too long to be uploaded to twitter:', tweet);
+		}
+		cb(null, tweet);
+	});
+}
+
 function readFirstLineAndMoveLast(filename, cb) {
 	fs.readFile(filename, 'utf8', function(err, data){
 		if(err) return cb(err);
 		var lines = data.split('\n');
 		do{
-			var tweet = lines.shift(1);
+			var tweet = lines.shift(1).trim();
 			lines.push(tweet);
 		} while(tweet.trim().substr(0,2) === '//');
 

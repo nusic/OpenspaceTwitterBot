@@ -2,7 +2,7 @@ var exec = require('child_process').exec;
 
 var config = require('./config.js');
 
-var verbose = true;
+var verbose = false;
 
 if(process.argv.length === 4){
 	var imgPath = process.argv[2];
@@ -15,9 +15,8 @@ else{
 }
 
 function run(imgPath, text){
-	var upload;
-	//upload = uploadImageTwurl
-	upload = uploadImageRaw;
+	//var upload = uploadImageTwurl
+	var upload = uploadImageRaw;
 
 	upload(imgPath, function(err, mediaId){
 		if(err) return console.error(err);
@@ -70,16 +69,17 @@ function uploadImageTwurl(imgPath, cb){
 	});
 }
 
-function tweetWithMedia(mediaId){
+function tweetWithMedia(mediaId, text){
 	var tweetCommand = 'twurl "/1.1/statuses/update.json" -d "media_ids=' + mediaId + '&status=' + text + '"';
-	console.log('executing command: ' + tweetCommand);
+	console.log('\nexecuting command: ' + tweetCommand);
 
 	exec(tweetCommand, function(error, stdout, stderr) { 
 		if(error) return console.error(error);
 		if(stderr) return console.error(stderr);
 
-		var tweetResponse = JSON.parse(stdout);
-		console.log('Uploaded text and media link: ' + tweetResponse.text);
+		var twitterTweetResponse = JSON.parse(stdout);
+		//console.log(twitterTweetResponse)
+		console.log('\nUploaded text and media link: ' + twitterTweetResponse.text);
 	});
 }
 
