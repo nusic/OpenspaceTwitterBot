@@ -13,7 +13,7 @@ var URL = 'https://api.github.com/repos'
 	+ '/commits'
 	+ '?sha=' + config.github.branch
 	+ '&since=' + getSinceDate()
-	+ 'access_token=' + config.github.credentials.token;
+	+ '&access_token=' + config.github.credentials.token;
 
 run();
 
@@ -28,26 +28,36 @@ function run(){
 }
 
 function responseHandler(err, response, body){
-	if(err){
-		return console.error(err);
-	}
-	if(response.statusCode !== 200) {
-		return console.error('Bad status code: ' + response.statusCode);
-	}
+	if(err) return console.error(err); 
+	if(response.statusCode !== 200) return console.error('Bad status code: ' + response.statusCode);
 
-	var commits = JSON.parse(body);
+	var commitOverviews = JSON.parse(body);
 
-	// Loop through commits and pick first that is not a merge
-	var commitDate = new Date(commit.committer.date);
-	var committer = commit.committer.name.split(' ')[0];
-
-	if(isToday(commitDate) || config.github.allowOldCommits){
-		console.log(getTweetText(committer, commit.message));
+	var commit = getMostInterestingCommit(commitOverviews);
+	if(commit !== null){
+		var committer = commit.committer.name.split(' ')[0];
+		var tweetText = getTweetText(committer, commit.message)
+		console.log(tweetText);
 	}
-	else{
+	else {
 		getDefaultTweetText(printOnSuccess);
 	}
 };
+
+function getMostInterestingCommit(commitOverviews){
+	var mostInterestingCommit = null;
+	var bestScore = -Infinity;
+	for (var i = 0; i < commitOverviews.length; i++) {
+		var commit = commitOverviews[i].commit;
+		var score = getScore(commit.message);
+		if(bestScore < score){
+			mostInterestingCommit = commit;
+			bestScore = score;
+		}
+	}
+	return mostInterestingCommit;
+}
+
 
 function printOnSuccess(err, data){
 	if(err) return console.error(err);
@@ -59,7 +69,25 @@ function getTweetText(committer, msg){
 	if(msg.indexOf(autoMsgTrigger) !== -1){
 		return 'Looks like ' + committer + ' just merged a branch into ' + config.github.branch;
 	}
-	return cutIfNecessary('Latest commit by ' + committer + ': ' + msg);
+	return cutIfNecessary(committer + ' commited: ' + msg);
+}
+
+function getScore(msg){
+	var score = 0;
+	var autoMsgTrigger = 'github.com:' + config.github.user + '/' + config.github.repo;
+	if(msg.indexOf(autoMsgTrigger) === -1){
+		score += 1;
+	}
+	score += (1 / 140) * msg.length;
+	return score;
+}
+
+function getSinceDate(){
+	switch(config.github.since.toLowerCase()){
+		case 'today':  
+			return (new Date()).toISOString().substr(0, 10) + 'T00:00:00.000Z';
+	}
+	throw new Error('Invalid value: ' + config.github.since);
 }
 
 function cutIfNecessary(message){
@@ -80,14 +108,6 @@ function cutIfNecessary(message){
 	return mes;
 }
 
-function getSinceDate(){
-	var d = new Date();
-	var todayIso = d.getFullYear() 
-		+ '-' + d.getMonth()
-		+ '-' + d.getDate()
-		+ 'T00:00:00Z';
-	return todayIso;
-}
 
 function isToday(d){
 	var todaysDate = new Date(); 

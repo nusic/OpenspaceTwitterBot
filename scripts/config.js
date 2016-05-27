@@ -20,7 +20,7 @@ module.exports = {
 		user: 'OpenSpace',
 		repo: 'OpenSpace-Development',
 		branch: 'feature/globebrowsing',
-		allowOldCommits: false,
+		since: 'today',
 		credentials: {
 			token: process.env.GITHUB_ACCESS_TOKEN,
 		}
