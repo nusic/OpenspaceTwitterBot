@@ -45,6 +45,7 @@ function responseHandler(err, response, body){
 };
 
 function getMostInterestingCommit(commitOverviews){
+	return null;
 	var mostInterestingCommit = null;
 	var bestScore = -Infinity;
 	for (var i = 0; i < commitOverviews.length; i++) {
@@ -108,23 +109,8 @@ function cutIfNecessary(message){
 	return mes;
 }
 
-
-function isToday(d){
-	var todaysDate = new Date(); 
-	return isSameDay(d, todaysDate);
-}
-
-function isSameDay(d1, d2){
-	return d1.getFullYear() === d2.getFullYear()
-		&& d1.getMonth() === d2.getMonth()
-		&& d1.getDate() === d2.getDate();
-}
-
 function getDefaultTweetText(cb){
-	var saturday = 5;
-	var today = new Date();
-	var tweetsFile = (today.getDay() < saturday) ? 
-		INACTIVITY_TWEETS : INACTIVITY_WEEKEND_TWEETS;
+	var tweetsFile = todayIsWeekend() ? INACTIVITY_WEEKEND_TWEETS : INACTIVITY_TWEETS;
 
 	readFirstLineAndMoveLast(tweetsFile, function(err, tweet){
 		if(err) return cb(err);
@@ -135,6 +121,11 @@ function getDefaultTweetText(cb){
 		}
 		cb(null, tweet);
 	});
+}
+
+function todayIsWeekend(){
+	var todaysDay = (new Date()).getDay();
+	return todaysDay === 0 || todaysDay === 6;
 }
 
 function readFirstLineAndMoveLast(filename, cb) {
