@@ -45,7 +45,6 @@ function responseHandler(err, response, body){
 };
 
 function getMostInterestingCommit(commitOverviews){
-	return null;
 	var mostInterestingCommit = null;
 	var bestScore = -Infinity;
 	for (var i = 0; i < commitOverviews.length; i++) {
