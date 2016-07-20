@@ -5,6 +5,7 @@
   "repository": "https://github.com/nusic/OpenspaceTwitterBot.git",
   "author": "Erik Broberg <paul@paularmstrongdesigns.com>",
   "dependencies": {
+    "async": "^2.0.0",
     "request": "^2.72.0"
   }
 }

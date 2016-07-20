@@ -4,11 +4,11 @@ module.exports = {
 	rootPath: rootPath,
 	camera: {
 		name: 'Logitech HD Pro Webcam C920',
-		runtime: '1',
+		runtime: '2',
 		sound: {
 			file: rootPath + 'data/sounds/CameraSound.m4a'
 		},
-		delay: 1000,
+		delay: 10,
 	},
 	image: {
 		resolution: '1280x720',
@@ -19,7 +19,7 @@ module.exports = {
 	github: {
 		user: 'OpenSpace',
 		repo: 'OpenSpace-Development',
-		branch: 'feature/globebrowsing',
+		branch: ['feature/globebrowsing', 'feature/osirisrex'],
 		since: 'today',
 		credentials: {
 			token: process.env.GITHUB_ACCESS_TOKEN,
